@@ -3,8 +3,6 @@ import java.util.ArrayList;
 public class Grid {
     private ArrayList<Row> theGrid = new ArrayList <Row> ();
 
-    private Row theRow;
-    private Square square;
 
     public Grid() {
         Row tempRow;
