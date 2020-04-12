@@ -3,10 +3,18 @@ public class Demo {
     public static void main (String [] args){
         Grid grid = new Grid();
         
-        grid.startGrid();
-        grid.displayGrid(grid.getGridOutput());
-        grid.updateGrid();
-        grid.displayGrid(grid.getGridOutput());
-                
+        grid.startOgre();
+        grid.displayGrid();
+        grid.placeNewEnemy();
+        for(String enemy : grid.getEnemies().keySet()) {
+        	for(Integer position : grid.getEnemies().get(enemy)) {
+        		
+        		grid.getEnemies().get(enemy).set(grid.getEnemies().get(enemy).indexOf(position), grid.updateEnemyPosition(enemy, position));
+        	}
+        	
+        }
+        grid.updateOgrePosition(grid.getSelectOgreColumn(), grid.getSelectOgreRow());
+        grid.displayGrid();
+        
     }
 }

@@ -57,17 +57,27 @@ public class GameGUI {
 		JSplitPane splitPane = new JSplitPane();
 		frame.getContentPane().add(splitPane);
 		
-		JPanel panel = new JPanel();
-		splitPane.setLeftComponent(panel);
+		JPanel menu = new JPanel();
+		splitPane.setLeftComponent(menu);
 		
-		JPanel panel_1 = new JPanel();
-		splitPane.setRightComponent(panel_1);
+		JPanel grid = new JPanel();
+		splitPane.setRightComponent(grid);
 		
 		//Provide minimum sizes for the two components in the split pane
-		Dimension minimumSize = new Dimension(200, 200);
-		panel.setMinimumSize(minimumSize);
-		panel_1.setMinimumSize(minimumSize);
+		Dimension minimumSize = new Dimension(300, 300);
+		menu.setMinimumSize(minimumSize);
+		grid.setMinimumSize(minimumSize);
+		grid.setLayout(new GridLayout(1, 0, 0, 0));
 		
+		ArrayList <JLabel> labelsList = new ArrayList <JLabel>();
+		for(Row tempRow : theGrid.returnArray()) {
+			for (Square tempSquare : tempRow.getTheRow()) {
+				JLabel label = new JLabel(tempSquare.getName());
+				grid.add(label);
+
+			}
+		}
+			
 //		ArrayList <JLabel> labelsList = new ArrayList<JLabel>();
 //		for(Row tempRow : theGrid.returnArray()) {
 //			for(Square tempSquare : tempRow.getTheRow()) {

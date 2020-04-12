@@ -1,9 +1,11 @@
 public class Square {
     private int number;
-    private boolean hasOgre;
+    private boolean empty;
     private Ogre ogre;
-    
-    
+    private Donkey donkey;
+    private Snake snake;
+    private Parrot parrot;
+    private String name;
    
 
 	public Square() {
@@ -13,11 +15,31 @@ public class Square {
 	public Square(int number) {
         setNumber(number);
         setEmpty(true);
+        setName("0");
     }
 
 	public void placeTheOgre () {
 		this.ogre = new Ogre("Ogre");
 		setEmpty(false);
+		setName(this.ogre.getName());
+	}
+	
+	public void placeTheDonkey () {
+		this.donkey = new Donkey("Donkey");
+		setEmpty(false);
+		setName(this.donkey.getName());
+	}
+	
+	public void placeTheSnake () {
+		this.snake = new Snake("Snake");
+		setEmpty(false);
+		setName(this.snake.getName());
+	}
+	
+	public void placeTheParrot () {
+		this.parrot = new Parrot("Parrot");
+		setEmpty(false);
+		setName(this.parrot.getName());
 	}
 	
     public int getNumber() {
@@ -30,15 +52,39 @@ public class Square {
     }
 
     public boolean isEmpty() {
-        return this.hasOgre;
+        return this.empty;
     }
 
     public void setEmpty(boolean empty) {
-        this.hasOgre = empty;
+        this.empty = empty;
+        this.name = "0";
     }
     
     public Ogre getOgre() {
-		return ogre;
+		return this.ogre;
 	}
 
+	public Donkey getDonkey() {
+		return this.donkey;
+	}
+
+	public Snake getSnake() {
+		return this.snake;
+	}
+
+
+	public Parrot getParrot() {
+		return this.parrot;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+   
+	
+	
 }
