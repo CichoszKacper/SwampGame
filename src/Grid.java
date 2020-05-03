@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -12,6 +13,7 @@ public class Grid {
 	private Random random = new Random();
 	private String gridOutput = "";
 	private Hashtable<String, ArrayList<Integer>> enemies = new Hashtable<String,ArrayList<Integer>>();
+	private Integer counter = 0;
 
 
 
@@ -56,9 +58,6 @@ public class Grid {
     		gridOutput += "\n";
     	}//end looping theGrid
     	System.out.println(gridOutput);
-    	for(String key : enemies.keySet()) {
-    		System.out.println(key + ": " + enemies.get(key));
-    	}
     }
 
     
@@ -90,7 +89,7 @@ public class Grid {
     		}
     	}
     }
-    //Method to place a new enemy. Works similar way to method placing Orge in the beginning of the game.
+    //Method to place a new enemy. Works similar way to method placing Ogre in the beginning of the game.
     public void placeNewEnemy () {
     	int randomEnemy = random.nextInt(3);
     	int chanceToEnter = random.nextInt(3);
@@ -167,6 +166,51 @@ public class Grid {
 
     	return position = Integer.valueOf((String.valueOf(newEnemyColumn) + String.valueOf(newEnemyRow)));
     }//end of updateEnemyPosition
+    
+    public void fight () {
+    	Integer tempSquarePosition = 0;
+    	ArrayList <Integer> deletePosition = new ArrayList<Integer>();
+    	for(String key : enemies.keySet()) {
+    		System.out.println(key + ": " + enemies.get(key));
+    	}
+    	
+    	for(Row tempRow : theGrid) {
+    		for(Square tempSquare : tempRow.getTheRow()) {
+    			if(tempSquare.getName().equalsIgnoreCase("Ogre")) {
+    				if (!enemies.isEmpty()) {
+        				for(String enemy : enemies.keySet()) {
+        					for(Integer position : enemies.get(enemy)) {
+        						tempSquarePosition = Integer.valueOf(String.valueOf(tempSquare.getNumber()) + String.valueOf(tempRow.getNumber()));
+        						if(tempSquarePosition == position) {
+        							counter++;
+        							if(counter>2) {
+//        								game over! Enemy win
+        								System.out.println("Enemies won");
+        							}
+        						}
+        						
+        					}
+        				}
+    				}
+
+    			}
+    		}
+    	}
+    	if(counter == 1 || counter == 2) {
+    		for(String enemy : enemies.keySet()) {
+    			for(Integer position : enemies.get(enemy)) { 	
+    				if(position.equals(tempSquarePosition)) {
+    					deletePosition.add(position);
+    					
+    				}
+    			}
+    		}
+    	}
+    	for(String enemy : enemies.keySet()) {
+    		enemies.get(enemy).removeAll(deletePosition);
+    	}
+    	System.out.println(counter);
+    }
     
     public ArrayList<Row> returnArray () {
     	return this.theGrid;
