@@ -14,6 +14,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 
@@ -24,10 +25,14 @@ public class GameGUI {
 	private JButton startGameBtn;
 	private JFrame frame;
 	private JButton playBtn;
+	private JButton passiveOgre;
+	private JButton grumpyOgre;
 	private JPanel menu;
 	private JPanel grid;
 	private ArrayList <JLabel> labelsList = new ArrayList <JLabel>();
 	private JTextArea textArea;
+	private JButton saveGame;
+	private JButton loadGame;
 
 
 
@@ -52,7 +57,7 @@ public class GameGUI {
 	 */
 	public GameGUI() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 900, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout (1,1));		
 		
@@ -68,17 +73,20 @@ public class GameGUI {
 		Dimension minimumSize = new Dimension(300, 300);
 		menu.setMinimumSize(minimumSize);
 		grid.setMinimumSize(minimumSize);
-		grid.setLayout(new GridLayout(4, 4, 0, 0));
+		grid.setLayout(new GridLayout(theGrid.returnArray().size(), theGrid.returnArray().size(), 0, 0));
+		menu.setLayout(new GridLayout(4, 4, 0, 0));
 	
 		
 		
 		menu.add(getPlayBtn());
 		menu.add(getStartGameBtn());
+		menu.add(getPassiveOgre());
+		menu.add(getGrumpyOgre());
+		menu.add(getSaveGame());
+		menu.add(getLoadGame());
 		
 		textArea = new JTextArea();
-		menu.add(textArea);
-		
-		
+		menu.add(textArea);		
 		
 	}
 
@@ -90,7 +98,7 @@ public class GameGUI {
 
 		for(Row tempRow : theGrid.returnArray()) {
 			for (Square tempSquare : tempRow.getTheRow()) {
-				System.out.println("grid dziala");
+				System.out.println(tempRow.getTheRow().size());
 				JLabel label = new JLabel();
 				label.setText(tempSquare.getName());
 				labelsList.add(label);
@@ -98,11 +106,12 @@ public class GameGUI {
 			}
 		}
 		grid.setVisible(true);
+	
 	}
 	
 	
 	private void updateGrid ()	{
-
+		String ogrePosition = String.valueOf(theGrid.getSelectOgreColumn()) + String.valueOf(theGrid.getSelectOgreRow());
 		int counter = 0;
 		for(Row tempRow : theGrid.returnArray()) {
 			for (Square tempSquare : tempRow.getTheRow()) {
@@ -117,6 +126,7 @@ public class GameGUI {
 				
 			}
 		}
+		output += "Ogre on position " + ogrePosition;
 		textArea.setText(output);
 	}
 	
@@ -125,21 +135,26 @@ public class GameGUI {
 			playBtn = new JButton("Play");
 			playBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					updateGrid();
+					
+					
+					
 					for(String enemy : theGrid.getEnemies().keySet()) {
 			        	for(Integer position : theGrid.getEnemies().get(enemy)) {
 			        		
 			        		theGrid.getEnemies().get(enemy).set(theGrid.getEnemies().get(enemy).indexOf(position), theGrid.updateEnemyPosition(enemy, position));
 			        	}		        	
 			        }
-					theGrid.placeNewEnemy();
 					theGrid.updateOgrePosition(theGrid.getSelectOgreColumn(), theGrid.getSelectOgreRow());
+					theGrid.placeNewEnemy();
 					theGrid.fight();
+					updateGrid();
+					
 				}
 			});
 		}
 		return playBtn;
 	}
+	
 
 	public ArrayList<JLabel> getLabelsList() {
 		return this.labelsList;
@@ -151,12 +166,74 @@ public class GameGUI {
 			startGameBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					startGame();
+					theGrid.startOgre();
 				}
 			});
 		}
 		return this.startGameBtn;
 	}
 	
+	public JButton getPassiveOgre () {
+		if (passiveOgre == null) {
+			passiveOgre = new JButton("Passive Mode");
+			passiveOgre.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					theGrid.setOgreMood(theGrid.getPassiveOgre());
+					theGrid.changeOgreMood(theGrid.getOgreMood());
+				}
+			});
+		}
+		return this.passiveOgre;
+	}
 	
+	public JButton getGrumpyOgre () {
+		if (grumpyOgre == null) {
+			grumpyOgre = new JButton("Grumpy Mode");
+			grumpyOgre.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					theGrid.setOgreMood(theGrid.getGrumpyOgre());
+					theGrid.changeOgreMood(theGrid.getOgreMood());
+				}
+			});
+		}
+		return this.grumpyOgre;
+	}
 	
+	public JButton getSaveGame() {
+		if (saveGame == null) {
+			saveGame = new JButton("Save Game");
+			saveGame.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						theGrid.saveEnemies();
+						theGrid.saveGame();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+		return this.saveGame;
+	}
+	
+	public JButton getLoadGame() {
+		if (loadGame == null) {
+			loadGame = new JButton("Load Game");
+			loadGame.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						theGrid.loadGame();
+						theGrid.loadEnemies();
+						theGrid.updateInformation();
+						updateGrid();
+					} catch (IOException | ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+		return this.loadGame;
+	}
 }

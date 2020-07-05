@@ -5,6 +5,5 @@ public class Donkey extends Enemy{
 		super(name);	
 	}
 
-	
 
 }

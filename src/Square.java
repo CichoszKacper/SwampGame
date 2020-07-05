@@ -24,22 +24,18 @@ public class Square {
 		setName(this.ogre.getName());
 	}
 	
-	public void placeTheDonkey () {
-		this.donkey = new Donkey("Donkey");
-		setEmpty(false);
-		setName(this.donkey.getName());
-	}
-	
-	public void placeTheSnake () {
-		this.snake = new Snake("Snake");
-		setEmpty(false);
-		setName(this.snake.getName());
-	}
-	
-	public void placeTheParrot () {
-		this.parrot = new Parrot("Parrot");
-		setEmpty(false);
-		setName(this.parrot.getName());
+	public void placeNewEnemy (Integer selector) {
+		
+		SimpleFactory enemyFactory = new SimpleFactory();
+		
+		Enemy theEnemy = null;
+		Integer numberOfEnemies = 3;
+		
+		for(int i=0; i < numberOfEnemies; i++) {
+			theEnemy = enemyFactory.createEnemy(selector);
+			setEmpty(false);
+			setName(theEnemy.getName());
+		}
 	}
 	
     public int getNumber() {

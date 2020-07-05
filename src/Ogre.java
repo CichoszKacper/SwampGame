@@ -15,4 +15,8 @@ public class Ogre {
 		this.name = name;
 	}
 	
+	public void ogreMood () {
+		
+	}
+	
 }

@@ -7,13 +7,13 @@ public class Row {
     
     
     public Row() {
-		
+    	
 	}
 
-	public Row(int number) {
+	public Row(int number, int size) {
         Square tempSquare;
         setNumber(number);
-        for(int loop = 1; loop < 5; loop++) {
+        for(int loop = 1; loop < size ; loop++) {
             tempSquare = new Square(loop);
             this.theRow.add(tempSquare);
         }
@@ -29,5 +29,6 @@ public class Row {
 
     public void setNumber(int number) {
         this.number = number;
-    }
+    }    
+    
 }

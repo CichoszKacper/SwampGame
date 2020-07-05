@@ -1,8 +1,19 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
 
 
 public class Grid {
@@ -14,51 +25,61 @@ public class Grid {
 	private String gridOutput = "";
 	private Hashtable<String, ArrayList<Integer>> enemies = new Hashtable<String,ArrayList<Integer>>();
 	private Integer counter = 0;
-
+	private Integer ogreMood = 1;
+	private Integer passiveOgre = 1;
+	private Integer grumpyOgre = 2;
+	private File enemiesFile = new File("EnemiesFile.txt");
+	private File saveGame = new File("SaveGame.txt");
+	private int[] savedInformation = {getSelectOgreColumn(), getSelectOgreRow(), getOgreMood()};
+	private int sizeOfGrid = 8;
+	private boolean enemiesWon = false;
 
 
 	public Grid() {
-        
-		for(int loop = 1; loop < 5; loop++) {
-            row = new Row(loop);
+		
+		for(int loop = 1; loop < sizeOfGrid; loop++) {
+            row = new Row(loop, sizeOfGrid);
             this.theGrid.add(row);
+                     
         }
     }
     
     public void startOgre () {
+    	
+    	Boolean isOgreOnGrid = false;
+    	
     	//Randomise start Ogre position on grid using imported Random class
     	  	
     	do {
-			selectOgreColumn = random.nextInt(4) + 1;
-			selectOgreRow = random.nextInt(4) + 1;
+			selectOgreColumn = random.nextInt(returnArray().size()) + 1;
+			selectOgreRow = random.nextInt(returnArray().size()) + 1;
     	}while(selectOgreColumn + selectOgreRow <3);
     	
-    	//Start grid and place Ogre in randomised before position
     	for (Row tempRow : theGrid) {
     		for (Square tempSquare : tempRow.getTheRow()) {
-   			
-    			//place Ogre in grid
-    			if(tempRow.getNumber() == selectOgreRow && tempSquare.getNumber() == selectOgreColumn) {
-    				tempSquare.placeTheOgre();
+    			if(tempSquare.getName().equals("Ogre")) {
+    				isOgreOnGrid = true;
     			}
 
     		}//end looping RowsArray
 
     	}//end looping theGrid
-
+    	
+    	//Start grid and place Ogre in randomised before position
+    	if(isOgreOnGrid.equals(false)) {
+	    	for (Row tempRow : theGrid) {
+	    		for (Square tempSquare : tempRow.getTheRow()) {
+	    		
+		    			//place Ogre in grid
+		    			if(tempRow.getNumber() == selectOgreRow && tempSquare.getNumber() == selectOgreColumn) {
+		    				tempSquare.placeTheOgre();
+		    			}
+	
+	    		}//end looping RowsArray
+	
+	    	}//end looping theGrid
+    	}
     }//end startGrid
-    
-    public void displayGrid () {
-    	String gridOutput = "";
-    	for (Row tempRow : theGrid) {
-    		for (Square tempSquare : tempRow.getTheRow()) {
-    			gridOutput += tempSquare.getName() + "   ";
-    		
-    		}//end looping RowsArray
-    		gridOutput += "\n";
-    	}//end looping theGrid
-    	System.out.println(gridOutput);
-    }
 
     
     public void updateOgrePosition (int selectedColumn, int selectedRow) {
@@ -70,10 +91,9 @@ public class Grid {
     	do {
     		selectOgreColumn = ThreadLocalRandom.current().nextInt(originalOgreColumn -1, originalOgreColumn + 2);
     		selectOgreRow = ThreadLocalRandom.current().nextInt(originalOgreRow -1, originalOgreRow + 2);
-    	}while(selectOgreColumn < 1 || selectOgreColumn > 4 || selectOgreRow < 1 || selectOgreRow > 4 || (selectOgreColumn == originalOgreColumn && selectOgreRow == originalOgreRow));
+    	}while(selectOgreColumn < 1 || selectOgreColumn > returnArray().size() || selectOgreRow < 1 || selectOgreRow > returnArray().size() || (selectOgreColumn == originalOgreColumn && selectOgreRow == originalOgreRow));
     	
     	//Make previous square empty again and select new position for Ogre
-    	//(Be careful about this when you will create Enemy class)!!!
 
     	for(Row tempRow : theGrid) {
     		for(Square tempSquare : tempRow.getTheRow()) {
@@ -98,15 +118,8 @@ public class Grid {
         	for (Row tempRow : theGrid) {
         		for (Square tempSquare : tempRow.getTheRow()) {
         			if(tempRow.getNumber() == 1 && tempSquare.getNumber() == 1) {
-        				if(randomEnemy == 0) {
-        					tempSquare.placeTheDonkey();       					
-        				}
-        				if(randomEnemy == 1) {
-        					tempSquare.placeTheSnake();
-        				}
-        				if(randomEnemy == 2) {
-        					tempSquare.placeTheParrot();
-        				}
+
+        				tempSquare.placeNewEnemy(randomEnemy);
         				
         				ArrayList<Integer> tempList = null;
         				if (enemies.containsKey(tempSquare.getName())) {
@@ -124,6 +137,7 @@ public class Grid {
         	}//end looping theGrid
     	}
     }
+    
     //Method to update enemy position. First take two parameters from HashTable: enemy name and enemy's position. Then randomly select new position
     //and return it as a integer.
     
@@ -140,7 +154,7 @@ public class Grid {
     	do {
     		newEnemyColumn = ThreadLocalRandom.current().nextInt(originalEnemyColumn -1, originalEnemyColumn + 2);
     		newEnemyRow = ThreadLocalRandom.current().nextInt(originalEnemyRow -1, originalEnemyRow + 2);
-    	}while(newEnemyColumn < 1 || newEnemyColumn > 4 || newEnemyRow < 1 || newEnemyRow > 4 || (newEnemyColumn == originalEnemyColumn && newEnemyRow == originalEnemyRow));
+    	}while(newEnemyColumn < 1 || newEnemyColumn > returnArray().size()  || newEnemyRow < 1 || newEnemyRow > returnArray().size() || (newEnemyColumn == originalEnemyColumn && newEnemyRow == originalEnemyRow));
 
 
     	for(Row tempRow : theGrid) {
@@ -152,13 +166,13 @@ public class Grid {
     			
     			if(tempSquare.getNumber() == newEnemyColumn && tempRow.getNumber() == newEnemyRow) {
     				if(enemy == "Donkey") {
-    					tempSquare.placeTheDonkey();
+    					tempSquare.placeNewEnemy(0);
     				}
     				if(enemy == "Snake") {
-    					tempSquare.placeTheSnake();
+    					tempSquare.placeNewEnemy(1);
     				}
     				if(enemy == "Parrot") {
-    					tempSquare.placeTheParrot();
+    					tempSquare.placeNewEnemy(2);
     				}
     			}
     		}
@@ -170,10 +184,8 @@ public class Grid {
     public void fight () {
     	Integer tempSquarePosition = 0;
     	ArrayList <Integer> deletePosition = new ArrayList<Integer>();
-    	for(String key : enemies.keySet()) {
-    		System.out.println(key + ": " + enemies.get(key));
-    	}
-    	
+
+    	counter = 0;
     	for(Row tempRow : theGrid) {
     		for(Square tempSquare : tempRow.getTheRow()) {
     			if(tempSquare.getName().equalsIgnoreCase("Ogre")) {
@@ -183,8 +195,9 @@ public class Grid {
         						tempSquarePosition = Integer.valueOf(String.valueOf(tempSquare.getNumber()) + String.valueOf(tempRow.getNumber()));
         						if(tempSquarePosition == position) {
         							counter++;
-        							if(counter>2) {
+        							if(counter>ogreMood) {
 //        								game over! Enemy win
+        								enemiesWon = true;
         								System.out.println("Enemies won");
         							}
         						}
@@ -196,7 +209,7 @@ public class Grid {
     			}
     		}
     	}
-    	if(counter == 1 || counter == 2) {
+    	if(counter <= ogreMood) {
     		for(String enemy : enemies.keySet()) {
     			for(Integer position : enemies.get(enemy)) { 	
     				if(position.equals(tempSquarePosition)) {
@@ -210,6 +223,73 @@ public class Grid {
     		enemies.get(enemy).removeAll(deletePosition);
     	}
     	System.out.println(counter);
+    }
+    
+    public void changeOgreMood(Integer ogreMood) {
+    	setOgreMood(ogreMood);
+    }
+    
+    public void saveEnemies () throws IOException {
+
+    	String enemiesPath = enemiesFile.getAbsolutePath();
+    	ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(enemiesPath));
+    	outputStream.writeObject(enemies);
+    	outputStream.close();
+    }
+    
+    @SuppressWarnings("unchecked")
+	public void loadEnemies() throws ClassNotFoundException, IOException {
+    	
+    	String enemiesPath = enemiesFile.getAbsolutePath();
+    	ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(enemiesPath));
+    	
+    	setEnemies((Hashtable<String,ArrayList<Integer>>)inputStream.readObject());
+    	
+    	inputStream.close();
+    }
+    
+    public void saveGame() throws IOException {
+    	
+    	int[] saveInformation = {getSelectOgreColumn(), getSelectOgreRow(), getOgreMood()};
+    	
+    	BufferedWriter outputWriter = new BufferedWriter(new FileWriter(saveGame));
+    	
+    	for(int i = 0; i<saveInformation.length; i++) {
+    		outputWriter.write((saveInformation[i] + "\n"));
+    	}
+    	outputWriter.close();
+    }
+    
+    public void loadGame() throws NumberFormatException, IOException {
+    	
+    	BufferedReader inputReader = new BufferedReader(new FileReader(saveGame));
+    	
+    	for(int i = 0; i<savedInformation.length;i++) {
+    		savedInformation[i] = Integer.parseInt(inputReader.readLine());
+    	}
+    	
+    	inputReader.close();
+    }
+    
+    public void updateInformation() {
+    	selectOgreColumn = savedInformation[0];
+    	selectOgreRow = savedInformation[1];
+    	setOgreMood(savedInformation[2]);
+    	
+    	for(Row tempRow : returnArray()) {
+    		for(Square tempSquare : tempRow.getTheRow()) {
+    			for(String enemy : enemies.keySet()) {
+    				for(Integer position : enemies.get(enemy)){
+    					Integer originalEnemyColumn = position/10;
+    			    	Integer originalEnemyRow = position%10;
+    			    	
+    			    	if(tempRow.getNumber() == originalEnemyRow && tempSquare.getNumber() == originalEnemyColumn) {
+    			    		tempSquare.setName(enemy);
+    			    	}
+    				}
+    			}
+    		}
+    	}
     }
     
     public ArrayList<Row> returnArray () {
@@ -232,10 +312,47 @@ public class Grid {
 		return this.selectOgreRow;
 	}
 
+	public void setEnemies(Hashtable<String, ArrayList<Integer>> enemies) {
+		this.enemies = enemies;
+	}
+
 	public Hashtable<String, ArrayList<Integer>> getEnemies() {
 		return this.enemies;
-	}  
+	}
+
+	public Integer getOgreMood() {
+		return ogreMood;
+	}
+
+	public void setOgreMood(Integer ogreMood) {
+		this.ogreMood = ogreMood;
+	}
+
+	public Integer getPassiveOgre() {
+		return passiveOgre;
+	}
+
+	public void setPassiveOgre(Integer passiveOgre) {
+		this.passiveOgre = passiveOgre;
+	}
+
+	public Integer getGrumpyOgre() {
+		return this.grumpyOgre;
+	}
+
+	public void setGrumpyOgre(Integer grumpyOgre) {
+		this.grumpyOgre = grumpyOgre;
+	}
+
+	public boolean isEnemiesWon() {
+		return this.enemiesWon;
+	}
+
+	public int[] getSavedInformation() {
+		return this.savedInformation;
+	}
 	
 	
+
 	
 }
