@@ -15,7 +15,7 @@ public class Square {
 	public Square(int number) {
         setNumber(number);
         setEmpty(true);
-        setName("0");
+        setName("o");
     }
 
 	public void placeTheOgre () {
