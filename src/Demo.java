@@ -1,10 +1,10 @@
+import java.io.IOException;
+
 public class Demo {
 
-    public static void main (String [] args){
-        Grid grid = new Grid();
-   
+    public static void main (String [] args) throws IOException{
     	
-    	GameGUI gameGUI = new GameGUI();
-    	gameGUI.main(args);
+    	AppGUI gui = new AppGUI();
+    	gui.main(args);
     }
 }

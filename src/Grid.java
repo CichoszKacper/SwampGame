@@ -31,20 +31,20 @@ public class Grid {
 	private File enemiesFile = new File("EnemiesFile.txt");
 	private File saveGame = new File("SaveGame.txt");
 	private int[] savedInformation = {getSelectOgreColumn(), getSelectOgreRow(), getOgreMood()};
-	private int sizeOfGrid = 8;
+	private int sizeOfGrid;
 	private boolean enemiesWon = false;
 
 
-	public Grid() {
+	public Grid(int intSizeOfGrid) {
 		
-		for(int loop = 1; loop < sizeOfGrid; loop++) {
-            row = new Row(loop, sizeOfGrid);
+		for(int loop = 1; loop < intSizeOfGrid; loop++) {
+            row = new Row(loop, intSizeOfGrid);
             this.theGrid.add(row);
                      
         }
     }
-    
-    public void startOgre () {
+
+	public void startOgre () {
     	
     	Boolean isOgreOnGrid = false;
     	
@@ -99,7 +99,7 @@ public class Grid {
     		for(Square tempSquare : tempRow.getTheRow()) {
     			if(!tempSquare.isEmpty() && tempSquare.getName().equals("Ogre") ){
     				tempSquare.setEmpty(true);
-    				tempSquare.setName("0");
+    				tempSquare.setName("o");
     			}
     			
     			//place Ogre in grid
@@ -213,8 +213,7 @@ public class Grid {
     		for(String enemy : enemies.keySet()) {
     			for(Integer position : enemies.get(enemy)) { 	
     				if(position.equals(tempSquarePosition)) {
-    					deletePosition.add(position);
-    					
+    					deletePosition.add(position);  					
     				}
     			}
     		}
@@ -250,12 +249,13 @@ public class Grid {
     
     public void saveGame() throws IOException {
     	
-    	int[] saveInformation = {getSelectOgreColumn(), getSelectOgreRow(), getOgreMood()};
+    	int [] information = {getSelectOgreColumn(), getSelectOgreRow(), getOgreMood()};
+    	setSavedInformation(information);
     	
     	BufferedWriter outputWriter = new BufferedWriter(new FileWriter(saveGame));
     	
-    	for(int i = 0; i<saveInformation.length; i++) {
-    		outputWriter.write((saveInformation[i] + "\n"));
+    	for(int i = 0; i<savedInformation.length; i++) {
+    		outputWriter.write((savedInformation[i] + "\n"));
     	}
     	outputWriter.close();
     }
@@ -350,6 +350,18 @@ public class Grid {
 
 	public int[] getSavedInformation() {
 		return this.savedInformation;
+	}
+	
+	public void setSavedInformation(int[] savedInformation) {
+		this.savedInformation = savedInformation;
+	}
+
+	public int getSizeOfGrid() {
+		return this.sizeOfGrid;
+	}
+
+	public void setSizeOfGrid(int sizeOfGrid) {
+		this.sizeOfGrid = sizeOfGrid;
 	}
 	
 	

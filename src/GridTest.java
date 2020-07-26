@@ -1,5 +1,6 @@
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.hamcrest.core.IsEqual;
@@ -12,7 +13,7 @@ public class GridTest {
 
 	@Test
 	public void testStartOgre() {
-		grid = new Grid();
+		grid = new Grid(8);
 		grid.startOgre();
 		boolean isOgreOnGrid = false;
 		for(Row tempRow : grid.returnArray()) {
@@ -29,7 +30,7 @@ public class GridTest {
 	public void testUpdateOgrePosition() {
 		int ogreColumn = 0;
 		int ogreRow = 0;
-		grid = new Grid();
+		grid = new Grid(8);
 		grid.updateOgrePosition(3, 3);
 		for(Row tempRow : grid.returnArray()) {
     		for(Square tempSquare : tempRow.getTheRow()) {
@@ -45,7 +46,7 @@ public class GridTest {
 
 	@Test
 	public void testPlaceNewEnemy() {
-		grid = new Grid();
+		grid = new Grid(8);
 		for(int i=0 ; i < 20 ; i++) {
 			grid.placeNewEnemy();
 		}
@@ -55,7 +56,7 @@ public class GridTest {
 
 	@Test
 	public void testUpdateEnemyPosition() {
-		grid = new Grid();
+		grid = new Grid(8);
 		int newPosition = grid.updateEnemyPosition("Donkey", 33);
 		
 		assertTrue(21 < newPosition && newPosition < 45);
@@ -63,7 +64,7 @@ public class GridTest {
 	
 	@Test
 	public void testFight () {
-		grid = new Grid ();
+		grid = new Grid (8);
 		grid.startOgre();
 		int ogreColumn = 0;
 		int ogreRow = 0;
@@ -88,24 +89,43 @@ public class GridTest {
 	
 	@Test
 	public void testChangeOgreMood () {
-		grid = new Grid();
+		grid = new Grid(8);
 		grid.changeOgreMood(2);
 		assertEquals(grid.getOgreMood(), Integer.valueOf(2));
 	}
 	
 	@Test
+	public void testLoadGame() {
+		grid = new Grid(8);
+		
+		grid.startOgre();
+		grid.setOgreMood(grid.getGrumpyOgre());
+		
+		try {
+			grid.saveGame();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("this " + grid.getSavedInformation()[2]);
+		assertEquals(2, grid.getSavedInformation()[2]);
+	}
+	
+	@Test
 	public void testUpdateInformation() {
-		grid = new Grid();
-		ArrayList <Integer> tempList = new ArrayList <Integer>();
-		tempList.add(22);
-		grid.getEnemies().put("Donkey", tempList); 
+		grid = new Grid(8);
+
+		int [] tempInformation = {3,4,1};
+		grid.setSavedInformation(tempInformation);
 		grid.setOgreMood(2);
 		grid.startOgre();
 		grid.updateInformation();
 		
-		assertEquals(2, grid.getSelectOgreColumn());
-		assertEquals(2, grid.getSelectOgreRow());
-		assertEquals(Integer.valueOf(2), grid.getOgreMood());
+		assertEquals(3, grid.getSelectOgreColumn());
+		assertEquals(4, grid.getSelectOgreRow());
+		assertEquals(Integer.valueOf(1), grid.getOgreMood());
 	
 	}
+	
+
 }
