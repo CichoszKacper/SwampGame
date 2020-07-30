@@ -15,8 +15,10 @@ public class GridTest {
 	public void testStartOgre() {
 		grid = new Grid(8);
 		grid.startOgre();
+		
+		//Checking is ogre is on the grid
 		boolean isOgreOnGrid = false;
-		for(Row tempRow : grid.returnArray()) {
+		for(Row tempRow : grid.returnRows()) {
 			for(Square tempSquare : tempRow.getTheRow()) {
 				if(tempSquare.getName().equals("Ogre")) {
 					isOgreOnGrid = true;
@@ -32,7 +34,7 @@ public class GridTest {
 		int ogreRow = 0;
 		grid = new Grid(8);
 		grid.updateOgrePosition(3, 3);
-		for(Row tempRow : grid.returnArray()) {
+		for(Row tempRow : grid.returnRows()) {
     		for(Square tempSquare : tempRow.getTheRow()) {
     			if(!tempSquare.isEmpty() && tempSquare.getName().equals("Ogre") ) {
     				ogreColumn = tempSquare.getNumber();
@@ -68,7 +70,8 @@ public class GridTest {
 		grid.startOgre();
 		int ogreColumn = 0;
 		int ogreRow = 0;
-		for(Row tempRow : grid.returnArray()) {
+		//Return the column and row of the ogre
+		for(Row tempRow : grid.returnRows()) {
     		for(Square tempSquare : tempRow.getTheRow()) {
     			if(!tempSquare.isEmpty() && tempSquare.getName().equals("Ogre") ) {
     				ogreColumn = tempSquare.getNumber();
@@ -76,7 +79,10 @@ public class GridTest {
     			}
     		}
     	}
+		//Change column and row of ogre into int value
 		int ogrePosition = Integer.parseInt(String.valueOf(ogreColumn) + String.valueOf(ogreRow));
+		
+		//Placing two enemies on the same position as ogre
 		ArrayList <Integer> tempList = new ArrayList <Integer>();
 		tempList.add(ogrePosition);
 		grid.getEnemies().put("Donkey", tempList);
@@ -85,13 +91,6 @@ public class GridTest {
 		grid.fight();
 		
 		assertTrue(grid.isEnemiesWon());
-	}
-	
-	@Test
-	public void testChangeOgreMood () {
-		grid = new Grid(8);
-		grid.changeOgreMood(2);
-		assertEquals(grid.getOgreMood(), Integer.valueOf(2));
 	}
 	
 	@Test
@@ -107,7 +106,6 @@ public class GridTest {
 			e.printStackTrace();
 		}
 
-		System.out.println("this " + grid.getSavedInformation()[2]);
 		assertEquals(2, grid.getSavedInformation()[2]);
 	}
 	

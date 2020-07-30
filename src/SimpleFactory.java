@@ -1,5 +1,7 @@
 public class SimpleFactory{
-
+	
+	
+	//Simple factory class created to make the process of selecting enemies easier
 	public Enemy createEnemy(Integer newEnemyType){
 
 		Enemy newEnemy = null;

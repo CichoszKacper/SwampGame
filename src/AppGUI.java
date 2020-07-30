@@ -2,14 +2,12 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 
 import javax.swing.JTextField;
@@ -26,15 +24,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 
 public class AppGUI implements ChangeListener  {
@@ -58,10 +52,13 @@ public class AppGUI implements ChangeListener  {
 	private JPanel grid;
 	private JSplitPane splitPane;
 	private JSlider slider;
-	private JTextArea textArea;
-	private int intSizeOfGrid;
+	private JTextPane titleSizeGrid;
+	private int intSizeOfGrid = 8;
+	private int countMoves = 0;
 	private Color buttonColor = new Color(156, 78, 78);
 	private Color bgColor = new Color(242, 218, 145);
+	private int minimumSizeOfGrid = 4;
+	private int maximumSizeOfGrid = 20;
 	
 	
 
@@ -94,66 +91,58 @@ public class AppGUI implements ChangeListener  {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
+		
+		//Create a new frame
 		frame = new JFrame();
 		frame.setBounds(100, 100, 900, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
+		
+		//Create mainMenu label
 		mainMenu = new JPanel();
 		mainMenu.setBounds(0, 0, 886, 600);
 		frame.getContentPane().add(mainMenu);
 		mainMenu.setLayout(null);
 		mainMenu.setBackground(bgColor);
 		
-		
+		//Add picture of Ogre to mainMenu label
 		BufferedImage myPicture = ImageIO.read(new File("hek.png"));
 		int pictureWidth = (int) (myPicture.getWidth() * 0.5);
 		int pictureHeight = (int) (myPicture.getHeight() * 0.5);
+		//Scaling picture so it can fit the left part of frame
 		Image scaledPicture = myPicture.getScaledInstance(pictureWidth, pictureHeight, Image.SCALE_AREA_AVERAGING);
 		JLabel picLabel = new JLabel(new ImageIcon(scaledPicture));
 		picLabel.setBounds(-200,-150, myPicture.getWidth(),myPicture.getHeight());
 		picLabel.setBackground(new Color(0, 106, 135));
 		mainMenu.add(picLabel);
 		
-		txtTitle = new JTextField();
-		txtTitle.setEditable(false);
-		txtTitle.setBounds(150, 20, 600, 70);
-		txtTitle.setHorizontalAlignment(SwingConstants.LEFT);
-		txtTitle.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 50));
-		txtTitle.setForeground(new Color(113, 133, 108));
-		txtTitle.setText("Get Out Of My Swamp!");
-		txtTitle.setBackground(bgColor);
-		txtTitle.setBorder(BorderFactory.createEmptyBorder());
-		mainMenu.add(txtTitle);
-		txtTitle.setColumns(10);
 		
-		
+		//Adding all JButtons to mainMenu. All buttons are created below.
+		mainMenu.add(getTxtTitle());
 		mainMenu.add(getBtnNewGame());
 		mainMenu.add(getBtnLoadGame());
 		mainMenu.add(getBtnQuitGame());
 		
-		
+		//Create another "window" where player will be required to set the size of grid
 		sizeOfGrid = new JPanel();
 		sizeOfGrid.setBounds(0, 0, 886, 600);
 		frame.getContentPane().add(sizeOfGrid);
 		sizeOfGrid.setLayout(null);
 		sizeOfGrid.setBackground(bgColor);
 		sizeOfGrid.setVisible(false);
+		
+		//Adding Slider, JButton to start game and title of window
 		sizeOfGrid.add(getStartGame());
 		sizeOfGrid.add(getSlider());
+		sizeOfGrid.add(getTitleSizeGrid());
 		
-		JTextPane titleSizeGrid = new JTextPane();
-		titleSizeGrid.setText("Select size of the grid");
-		titleSizeGrid.setFont(new Font("Tahoma",Font.BOLD,20));
-		titleSizeGrid.setBounds((int)(sizeOfGrid.getWidth()*0.38), (int)(sizeOfGrid.getHeight()*0.1), 450, 200);
-		titleSizeGrid.setBackground(bgColor);
-		sizeOfGrid.add(titleSizeGrid);
-		
+		//Create another window of actual game. Create splitPane, one side will consist of the grid, and another one of buttons
 		splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setBounds(0, 0, 886, 553);
 		frame.getContentPane().add(splitPane);
-		splitPane.setVisible(false);
+		splitPane.setVisible(false); //Make splitPane and its both components invisible in the beginning 
 		menu = new JPanel();
 		grid = new JPanel();
 		menu.setVisible(false);
@@ -171,7 +160,7 @@ public class AppGUI implements ChangeListener  {
 		menu.setMaximumSize(maximumSizeMenu);
 		menu.setLayout(new GridLayout(1, 4, 0, 0));
 	
-		
+		//Add all created below buttons to the menu component 
 		menu.add(getPlayBtn());
 		menu.add(getPassiveOgre());
 		menu.add(getGrumpyOgre());
@@ -181,9 +170,11 @@ public class AppGUI implements ChangeListener  {
 		
 	}
 	
+	
+	//Method to create the grid. In order to do it, list of labels was created with square name in each of it.
 	private void startGame() {
 		
-		for(Row tempRow : theGrid.returnArray()) {
+		for(Row tempRow : theGrid.returnRows()) {
 			for (Square tempSquare : tempRow.getTheRow()) {
 				JLabel label = new JLabel();
 				label.setText(tempSquare.getName());
@@ -196,6 +187,7 @@ public class AppGUI implements ChangeListener  {
 	
 	}
 	
+	//JButton to start the game in mainMenu 
 	public JButton getBtnNewGame() {
 		if (btnNewGame == null) {
 			btnNewGame = new JButton("New Game");
@@ -205,6 +197,7 @@ public class AppGUI implements ChangeListener  {
 			btnNewGame.setBorder(BorderFactory.createEmptyBorder());
 			btnNewGame.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					//Once clicked ActionListener switches windows from mainMenu into selection of the size of grid 
 					mainMenu.setVisible(false);
 					sizeOfGrid.setVisible(true);
 				}
@@ -213,6 +206,7 @@ public class AppGUI implements ChangeListener  {
 		return this.btnNewGame;
 	}
 	
+	//JButton to start actual game once in sizeOfGrid JLabel
 	public JButton getStartGame() {
 		if (btnStartGame == null) {
 			btnStartGame = new JButton("Start Game with grid " + getIntSizeOfGrid() + "x" + getIntSizeOfGrid());
@@ -222,25 +216,25 @@ public class AppGUI implements ChangeListener  {
 			btnStartGame.setBorder(BorderFactory.createEmptyBorder());
 			btnStartGame.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					theGrid = new Grid(getIntSizeOfGrid());
-					grid.setLayout(new GridLayout(getIntSizeOfGrid(), getIntSizeOfGrid(), 0, 0));
+					theGrid = new Grid(getIntSizeOfGrid()+1); //Have to add +1 to return same size as player choose in previous window
+					grid.setLayout(new GridLayout(getIntSizeOfGrid(), getIntSizeOfGrid(), 0, 0)); //Creates the layout based on the choice of player
+					//Moving to new window where actual game starts
 					sizeOfGrid.setVisible(false);
 					splitPane.setVisible(true);
 					menu.setVisible(true);
 					grid.setVisible(true);
 					startGame();
 					theGrid.startOgre();
-					
-					
 				}
 			});
 		}
 		return this.btnStartGame;
 	}
 	
+	//JSlider to select the size of grid
 	public JSlider getSlider () {
 		if (slider == null) {
-			slider = new JSlider(4,20);
+			slider = new JSlider(minimumSizeOfGrid,maximumSizeOfGrid, 8); //Minimum size of grid, maximum size of grid and default size;
 			slider.setPaintTrack(true); 
 			slider.setPaintTicks(true); 
 			slider.setPaintLabels(true); 
@@ -248,12 +242,14 @@ public class AppGUI implements ChangeListener  {
 			slider.setMinorTickSpacing(1);
 			slider.setBackground(bgColor);
 			slider.setBounds((int)(sizeOfGrid.getWidth()*0.25), (int)(sizeOfGrid.getHeight()*0.2), 450, 200);
-			slider.addChangeListener(this);
+			slider.addChangeListener(this); //Adding listener to the slider
 			
 		}
 		return this.slider;
 	}
 	
+	
+	//JButton to play next round during game
 	public JButton getPlayBtn() {
 		if (playBtn == null) {
 			playBtn = new JButton("Play");
@@ -261,20 +257,30 @@ public class AppGUI implements ChangeListener  {
 			playBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					
-					System.out.println(theGrid.getEnemies());
-		
+					//Loop to change the position of all enemies on grid
 					for(String enemy : theGrid.getEnemies().keySet()) {
 			        	for(Integer position : theGrid.getEnemies().get(enemy)) {
 			        		
 			        		theGrid.getEnemies().get(enemy).set(theGrid.getEnemies().get(enemy).indexOf(position), theGrid.updateEnemyPosition(enemy, position));
 			        	}		        	
 			        }
+					//Updating the position of ogre
 					theGrid.updateOgrePosition(theGrid.getSelectOgreColumn(), theGrid.getSelectOgreRow());
 					theGrid.placeNewEnemy();
+					//Combat
 					theGrid.fight();
 					updateGrid();
+					countMoves++; //Counts the number of moves in one game
+					//Checks if enemies won. If so game comes back to main menu
 					if(theGrid.isEnemiesWon()) {
-						//to do pop up message + return to main menu
+						JOptionPane.showMessageDialog(null, "Game over! Hek got kicked out from the swamp by enemies after " + countMoves + " moves! :(");
+						mainMenu.setVisible(true);
+						splitPane.setVisible(false);
+						menu.setVisible(false);
+						grid.setVisible(false);
+						labelsList.clear();
+						grid.removeAll();
+						countMoves = 0;
 					}
 				}
 			});
@@ -282,26 +288,19 @@ public class AppGUI implements ChangeListener  {
 		return playBtn;
 	}
 	
+	//Updates the grid
 	private void updateGrid ()	{
-		String ogrePosition = String.valueOf(theGrid.getSelectOgreColumn()) + String.valueOf(theGrid.getSelectOgreRow());
 		int counter = 0;
-		for(Row tempRow : theGrid.returnArray()) {
+		for(Row tempRow : theGrid.returnRows()) {
 			for (Square tempSquare : tempRow.getTheRow()) {
 				labelsList.get(counter).setText(tempSquare.getName());
 				counter++;
 			}
 		}
-//		String output = "";
-//		for(String enemy : theGrid.getEnemies().keySet()) {
-//			for(Integer position : theGrid.getEnemies().get(enemy)) {
-//				output+= enemy + " on position " + position +"\n";
-//				
-//			}
-//		}
-//		output += "Ogre on position " + ogrePosition;
-//		textArea.setText(output);
 	}
 	
+	
+	//JButton to change Ogre mood into passive one
 	public JButton getPassiveOgre () {
 		if (passiveOgre == null) {
 			passiveOgre = new JButton("Passive Mode");
@@ -309,13 +308,13 @@ public class AppGUI implements ChangeListener  {
 			passiveOgre.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					theGrid.setOgreMood(theGrid.getPassiveOgre());
-					theGrid.changeOgreMood(theGrid.getOgreMood());
 				}
 			});
 		}
 		return this.passiveOgre;
 	}
 	
+	//JButton to change Ogre mood into grumpy one
 	public JButton getGrumpyOgre () {
 		if (grumpyOgre == null) {
 			grumpyOgre = new JButton("Grumpy Mode");
@@ -323,13 +322,13 @@ public class AppGUI implements ChangeListener  {
 			grumpyOgre.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					theGrid.setOgreMood(theGrid.getGrumpyOgre());
-					theGrid.changeOgreMood(theGrid.getOgreMood());
 				}
 			});
 		}
 		return this.grumpyOgre;
 	}
 	
+	//JButton to save the game
 	public JButton getBtnSaveGame() {
 		if (btnSaveGame == null) {
 			btnSaveGame = new JButton("Save Game");
@@ -337,6 +336,7 @@ public class AppGUI implements ChangeListener  {
 			btnSaveGame.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					try {
+						theGrid.setSizeOfGrid(getIntSizeOfGrid());
 						theGrid.saveEnemies();
 						theGrid.saveGame();
 					} catch (IOException e) {
@@ -349,6 +349,7 @@ public class AppGUI implements ChangeListener  {
 		return this.btnSaveGame;
 	}
 	
+	//JButton to load game in main menu window
 	public JButton getBtnLoadGame() {
 		if (btnLoadGame == null) {
 			btnLoadGame = new JButton("Load Game");
@@ -359,6 +360,8 @@ public class AppGUI implements ChangeListener  {
 			btnLoadGame.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					try {
+						theGrid = new Grid(getIntSizeOfGrid());
+						grid.setLayout(new GridLayout(getIntSizeOfGrid(), getIntSizeOfGrid(), 0, 0));
 						mainMenu.setVisible(false);
 						splitPane.setVisible(true);
 						menu.setVisible(true);
@@ -368,6 +371,7 @@ public class AppGUI implements ChangeListener  {
 						theGrid.updateInformation();
 						
 						startGame();
+						
 						updateGrid();
 						
 					} catch (IOException | ClassNotFoundException e) {
@@ -380,6 +384,8 @@ public class AppGUI implements ChangeListener  {
 		return this.btnLoadGame;
 	}
 	
+	
+	//JButton to Quit Game in main menu window
 	public JButton getBtnQuitGame() {
 		if (btnQuitGame == null) {
 			btnQuitGame = new JButton("Quit Game");
@@ -397,6 +403,7 @@ public class AppGUI implements ChangeListener  {
 		return this.btnQuitGame;
 	}
 	
+	//JButton to return to main menu
 	public JButton getBtnReturnToMainMenu () {
 		if (returnToMainMenu == null) {
 			returnToMainMenu = new JButton("Return To Main Menu");
@@ -415,16 +422,46 @@ public class AppGUI implements ChangeListener  {
 		return this.returnToMainMenu;
 	}
 	
+	//JTextField with title of the game
+	public JTextField getTxtTitle() {
+		txtTitle = new JTextField();
+		txtTitle.setEditable(false);
+		txtTitle.setBounds(150, 20, 600, 70);
+		txtTitle.setHorizontalAlignment(SwingConstants.LEFT);
+		txtTitle.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 50));
+		txtTitle.setForeground(new Color(113, 133, 108));
+		txtTitle.setText("Get Out Of My Swamp!");
+		txtTitle.setBackground(bgColor);
+		txtTitle.setBorder(BorderFactory.createEmptyBorder());
+		txtTitle.setColumns(10);
+		return this.txtTitle;
+	}
+	
+	
+	//JTextPane with title of SizeOfGrid window
+	public JTextPane getTitleSizeGrid() {
+		titleSizeGrid = new JTextPane();
+		titleSizeGrid.setText("Select size of the grid");
+		titleSizeGrid.setFont(new Font("Tahoma",Font.BOLD,20));
+		titleSizeGrid.setBounds((int)(sizeOfGrid.getWidth()*0.38), (int)(sizeOfGrid.getHeight()*0.1), 450, 200);
+		titleSizeGrid.setBackground(bgColor);
+		return this.titleSizeGrid;
+	}
+	
+	//Method to update text in SizeOfGrid window
 	private void updateTheSizeOfGrid() {
 		btnStartGame.setText("Start Game with grid " + getIntSizeOfGrid() + "x" + getIntSizeOfGrid());
 	}
 	
+	
+	//ChangeListener for JSlider to select size of grid
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		setIntSizeOfGrid(slider.getValue());
 		updateTheSizeOfGrid();
 	}
 
+	//Getters and setters
 	public int getIntSizeOfGrid() {
 		return this.intSizeOfGrid;
 	}
